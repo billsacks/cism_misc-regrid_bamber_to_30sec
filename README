@@ -27,6 +27,9 @@
 # GLOBE_glacier_mask/Gardner_ice_mask_data/ASG_ice_shelf_0.0083.nc)
 
 ncks -d lat,50.,90. -d lon,-90.,0. ASG_ice_shelf_0.0083.nc template_out.nc
+ncwa -O -a time template_out.nc template_out2.nc
+mv template_out2.nc template_out.nc
+ncrename -v 'ice shelf',ice_shelf template_out.nc
 
 # ----------------------------------------------------------------------
 # Convert Bamber landcover to continuous fields, and do other
@@ -51,7 +54,7 @@ ncap2 -S convert_bamber_fields.ncap2 bamber_5km.nc bamber_5km_converted.nc
 # ----------------------------------------------------------------------
 
 # This interpolation is done using ncl's rcm2rgrid, which uses inverse
-# distance weighting. According tothe documentation:
+# distance weighting. According to the documentation:
 #
 # "The code searches the input curvilinear grid latitudes and
 # longitudes for the four grid points that surround a specified output
@@ -64,9 +67,21 @@ ncap2 -S convert_bamber_fields.ncap2 bamber_5km.nc bamber_5km_converted.nc
 # (avoiding encroachment of missing values).
 
 # linint2 (ncl's bilinear interpolation) isn't
-# possible because it 
-# If possible, ignore _FillValue values when doing the interpolation
+# possible because it only handles rectilinear grids
 
+# here is a test run making a 1-deg output (just to test rcm2rgrid_wrapper):
+# ncl ~/ncl/rcm2rgrid_wrapper.ncl input_file_name=\"bamber_5km_converted.nc\" input_var_name=\"usrf\" output_file_name=\"usrf_30sec.nc\" out_res=1 north=90 south=50 west=-90 east=0
+
+ncl ~/ncl/rcm2rgrid_wrapper.ncl input_file_name=\"bamber_5km_converted.nc\" input_var_name=\"pct_gic\" output_file_name=\"pct_gic_30sec.nc\" template_file_name=\"template_out.nc\" template_var_name=\"ice_shelf\"
+ncl ~/ncl/rcm2rgrid_wrapper.ncl input_file_name=\"bamber_5km_converted.nc\" input_var_name=\"pct_icesheet\" output_file_name=\"pct_icesheet_30sec.nc\" template_file_name=\"template_out.nc\" template_var_name=\"ice_shelf\"
+ncl ~/ncl/rcm2rgrid_wrapper.ncl input_file_name=\"bamber_5km_converted.nc\" input_var_name=\"landmask\" output_file_name=\"landmask_30sec.nc\" template_file_name=\"template_out.nc\" template_var_name=\"ice_shelf\"
+ncl ~/ncl/rcm2rgrid_wrapper.ncl input_file_name=\"bamber_5km_converted.nc\" input_var_name=\"usrf\" output_file_name=\"usrf_30sec.nc\" template_file_name=\"template_out.nc\" template_var_name=\"ice_shelf\"
+
+# Put all variables in a single file
+ncks -v pct_gic pct_gic_30sec.nc bamber_30sec.nc
+ncks -A -v pct_icesheet pct_icesheet_30sec.nc bamber_30sec.nc
+ncks -A -v landmask landmask_30sec.nc bamber_30sec.nc
+ncks -A -v usrf usrf_30sec.nc bamber_30sec.nc
 
 # ----------------------------------------------------------------------
 # Convert landmask to 0/1
