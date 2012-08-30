@@ -87,4 +87,16 @@ ncks -A -v usrf usrf_30sec.nc bamber_30sec.nc
 # Convert landmask to 0/1
 # ----------------------------------------------------------------------
 
-# Wherever landmask was > 0, set it to 1
+ncap2 -s 'where(landmask > 0) landmask=1; landmask=byte(landmask)' bamber_30sec.nc bamber_30sec_landmask.nc
+
+mv bamber_30sec_landmask.nc bamber_30sec.nc
+
+# ----------------------------------------------------------------------
+# Compute derived quantities
+# ----------------------------------------------------------------------
+
+ncap2 -s 'pct_landice = pct_gic + pct_icesheet' bamber_30sec.nc bamber_30sec_derived.nc
+
+rm bamber_30sec.nc
+ncks -x -v pct_icesheet bamber_30sec_derived.nc bamber_30sec.nc
+rm bamber_30sec_derived.nc
