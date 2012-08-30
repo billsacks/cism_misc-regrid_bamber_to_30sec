@@ -2,14 +2,14 @@
 // interpolation
 
 // Define new variables
-pct_gic[$y1,$x1]=0.0;
-pct_icesheet[$y1,$x1]=0.0;
-landmask[$y1,$x1]=0.0;
+pct_gic[$y1,$x1]=0.0f;
+pct_icesheet[$y1,$x1]=0.0f;
+landmask[$y1,$x1]=0.0f;
 
 // Set _FillValue attributes for new variables
-pct_gic.set_miss(-9999.);
-pct_icesheet.set_miss(-9999.);
-landmask.set_miss(-9999.);
+pct_gic.set_miss(-9999.f);
+pct_icesheet.set_miss(-9999.f);
+landmask.set_miss(-9999.f);
 
 // Convert landcover to continuous fields: % icesheet, % gic
 where(landcover==3)
