@@ -1,0 +1,75 @@
+# Bill Sacks
+# August, 2012
+
+# This documents the procedure for regridding the Bamber Greenland
+# landcover data to 30" resolution, so that it can be merged with Alex
+# Gardner's glacier cover dataset.
+
+# This file and any associated scripts can be found here:
+
+# https://svn-user-sacks.cgd.ucar.edu/cism_misc/regrid_bamber_to_30sec/trunk
+
+# The various intermediate files can be found on roo:
+# ~/cism_misc/regrid_bamber_to_30sec
+
+# ----------------------------------------------------------------------
+# Create template file for output
+# ----------------------------------------------------------------------
+
+# We want the final output file to have the coordinates and bounds of
+# "tile B" from the GLOBE topography dataset. This is a 30" file with
+# bounds of 50 - 90N, -90 to 0E. (Resulting array should be 10800 x
+# 4800.)
+
+# (Did the following on mirage, because it didn't work on roo)
+
+# (The input file came from Jeremy Fyke:
+# GLOBE_glacier_mask/Gardner_ice_mask_data/ASG_ice_shelf_0.0083.nc)
+
+ncks -d lat,50.,90. -d lon,-90.,0. ASG_ice_shelf_0.0083.nc template_out.nc
+
+# ----------------------------------------------------------------------
+# Convert Bamber landcover to continuous fields, and do other
+# modifications to get Bamber data ready for interpolation
+# ----------------------------------------------------------------------
+
+# Extract desired fields
+# Note that this uses the file with my fixed landcover variable
+ncks -v lat,lon,landcover,usrf,mapping ../fixing_greenland_data/Greenland_5km_v1.1_SacksRev_c110629.nc bamber_5km.nc
+
+# Remove degenerate time dimension
+ncwa -O -a time bamber_5km.nc bamber_5km.nc
+
+# Add fill value attribute to usrf
+ncatted -a _FillValue,usrf,c,f,-9999. bamber_5km.nc
+
+# Convert to continuous fields: % icesheet, % gic. Also, create landmask variable
+ncap2 -S convert_bamber_fields.ncap2 bamber_5km.nc bamber_5km_converted.nc
+
+# ----------------------------------------------------------------------
+# Interpolate to 30" grid
+# ----------------------------------------------------------------------
+
+# This interpolation is done using ncl's rcm2rgrid, which uses inverse
+# distance weighting. According tothe documentation:
+#
+# "The code searches the input curvilinear grid latitudes and
+# longitudes for the four grid points that surround a specified output
+# grid coordinate. Because one or more of these input points could
+# contain missing values (@_FillValue), fewer than four points could
+# be used in the interpolation."
+# 
+# This gives the treatment of missing values that I want: i.e., it
+# sounds like it proceeds happily with whatever values are present
+# (avoiding encroachment of missing values).
+
+# linint2 (ncl's bilinear interpolation) isn't
+# possible because it 
+# If possible, ignore _FillValue values when doing the interpolation
+
+
+# ----------------------------------------------------------------------
+# Convert landmask to 0/1
+# ----------------------------------------------------------------------
+
+# Wherever landmask was > 0, set it to 1

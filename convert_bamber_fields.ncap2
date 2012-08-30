@@ -1,0 +1,46 @@
+// ncap2 script for converting Bamber fields to what is needed for
+// interpolation
+
+// Define new variables
+pct_gic[$y1,$x1]=0.0;
+pct_icesheet[$y1,$x1]=0.0;
+landmask[$y1,$x1]=0.0;
+
+// Set _FillValue attributes for new variables
+pct_gic.set_miss(-9999.);
+pct_icesheet.set_miss(-9999.);
+landmask.set_miss(-9999.);
+
+// Convert landcover to continuous fields: % icesheet, % gic
+where(landcover==3)
+  pct_gic=100.;
+elsewhere
+  pct_gic=0.;
+
+where(landcover==4)
+  pct_icesheet=100.;
+elsewhere
+  pct_icesheet=0.;
+
+// Create landmask field: 1 wherever landcover is land, gic or
+// icesheet; 0 where landcover is ocean; _FillValue where landcover is
+// no_data
+where(landcover >= 2)
+  landmask=1.0;
+elsewhere
+  landmask=0.0;
+
+where(landcover==0)
+  landmask=landmask.get_miss();
+
+// over no_data and ocean points, set data fields to missing value
+where(landcover==0 || landcover==1) {
+  pct_gic=pct_gic.get_miss();
+  pct_icesheet=pct_icesheet.get_miss();
+  
+  // note that the input file has non-zero usrf values over both
+  // landcover==0 and landcover==1 points; I expected it to have 0
+  // values in all those places, but I still think it's correct to set
+  // it to missing value in these places
+  usrf=usrf.get_miss();
+}
