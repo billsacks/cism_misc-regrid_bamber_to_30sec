@@ -4,12 +4,11 @@
 // Define new variables
 pct_gic[$y1,$x1]=0.0f;
 pct_icesheet[$y1,$x1]=0.0f;
-landmask[$y1,$x1]=0.0f;
+landmask[$y1,$x1]=0;
 
 // Set _FillValue attributes for new variables
 pct_gic.set_miss(-9999.f);
 pct_icesheet.set_miss(-9999.f);
-landmask.set_miss(-9999.f);
 
 // Convert landcover to continuous fields: % icesheet, % gic
 where(landcover==3)
@@ -22,16 +21,24 @@ where(landcover==4)
 elsewhere
   pct_icesheet=0.;
 
-// Create landmask field: 1 wherever landcover is land, gic or
-// icesheet; 0 where landcover is ocean; _FillValue where landcover is
-// no_data
+// Create landmask fields. Note that we have two landmask variables,
+// with slightly different meanings:
+// - landmask (int): always 0 or 1: 1 wherever landcover is land, gic
+//   or icesheet; 0 where landcover is ocean or no_data
+//   - i.e., this is 0 wherever the data fields are invalid
+// - landmask_float (float): 0 or 1 or nodata: 1 where landmask is 1;
+//   0 where landcover is ocean; _FillValue where landcover is no_data
+//   - this is the landmask field that will be regridded
 where(landcover >= 2)
-  landmask=1.0;
+  landmask=1;
 elsewhere
-  landmask=0.0;
+  landmask=0;
+
+landmask_float=float(landmask);
+landmask_float.set_miss(-9999.f);
 
 where(landcover==0)
-  landmask=landmask.get_miss();
+  landmask_float=landmask_float.get_miss();
 
 // over no_data and ocean points, set data fields to missing value
 where(landcover==0 || landcover==1) {
