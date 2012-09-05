@@ -59,6 +59,20 @@ ncatted -a _FillValue,usrf,c,f,-9999. bamber_5km.nc
 ncap2 -S convert_bamber_fields.ncap2 bamber_5km.nc bamber_5km_converted.nc
 
 # ----------------------------------------------------------------------
+# Make a version of bamber_5km_converted for plotting in panoply
+# ----------------------------------------------------------------------
+
+# For some reason, panoply doesn't properly handle the 'mapping';
+# first we need to get rid of that
+ncks -x -v mapping bamber_5km_converted.nc bamber_5km_converted_plotting.nc 
+ncatted -a grid_mapping,,d,, bamber_5km_converted_plotting.nc
+
+# Now we need to add attributes pointing panoply to the lat & lon arrays
+ncatted -a coordinates,,c,c,'lon lat' bamber_5km_converted_plotting.nc
+# But those attributes don't apply to non-spatial variables
+ncatted -a coordinates,time,d,, -a coordinates,x1,d,, -a coordinates,y1,d,, bamber_5km_converted_plotting.nc
+
+# ----------------------------------------------------------------------
 # Interpolate to 30" grid
 # ----------------------------------------------------------------------
 
