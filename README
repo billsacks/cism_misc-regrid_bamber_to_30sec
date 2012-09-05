@@ -93,8 +93,8 @@ ncks -A -v pct_icesheet pct_icesheet_30sec.nc bamber_30sec.nc
 ncks -A -v landmask landmask_30sec.nc bamber_30sec.nc
 ncks -A -v usrf usrf_30sec.nc bamber_30sec.nc
 
-# Restore lat metadata
-ncatted -a long_name,lat,c,c,latitude -a units,lat,c,c,degrees_north bamber_30sec.nc
+# Restore lon metadata
+ncatted -a long_name,lon,c,c,longitude -a units,lon,c,c,degrees_east bamber_30sec.nc
 
 # ----------------------------------------------------------------------
 # Convert landmask to 0/1
