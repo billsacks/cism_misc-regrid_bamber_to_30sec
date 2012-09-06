@@ -49,6 +49,12 @@ begin
 
   interp_method = "bilinear"
 
+  ; set the following to true if the necessary files have already been
+  ; generated
+  skip_src_grid = True
+  skip_dst_grid = True
+  skip_wgt_grid = False
+
 ;*****************END OF USER DEFINIED VARIABLES*******************
 
 ;************************************************
@@ -107,11 +113,16 @@ begin
 
   Opt@SrcFileName = "source_grid_file.nc"
   Opt@DstFileName = "destination_grid_file.nc"
+  Opt@WgtFileName = "weights_file.nc"
+  Opt@SkipSrcGrid = skip_src_grid
+  Opt@SkipDstGrid = skip_dst_grid
+  Opt@SkipWgtGrid = skip_wgt_grid
 
   Opt@SrcInputFileName=input_file_name
   Opt@SrcTitle=input_title
   Opt@CopyVarCoords = True
   Opt@ForceOverwrite = True
+  Opt@Debug = True
 
 ;************************************************
 ; Main Loop:
@@ -131,7 +142,7 @@ begin
     ; the other variables; this is done via the following options:
     Opt@SkipSrcGrid = True
     Opt@SkipDstGrid = True
-    Opt@SkipWeightGen = True
+    Opt@SkipWgtGen = True
 
 ;************************************************
 ; Clean up: delete variables to prepare for next iteration
