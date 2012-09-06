@@ -81,7 +81,7 @@ ncatted -a coordinates,time,d,, -a coordinates,x1,d,, -a coordinates,y1,d,, bamb
 
 # Did the following on mirage (because the ESMF_regridWeightGen
 # program isn't working on roo):
-nohup ncl regrid.nc > nohup.out &
+nohup ncl regrid.ncl > nohup.out &
 
 # ----------------------------------------------------------------------
 # Convert landmask to 0/1
