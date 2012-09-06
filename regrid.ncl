@@ -19,8 +19,11 @@ begin
   ; included as an attribute in the output
   input_title="Bamber 5 km"
 
-  ; the input variables should all be on the same grid
-  input_var_names=(/"pct_gic","pct_icesheet","landmask_float","usrf"/)
+  ; all of the input variables to regrid
+  ; Note: the input variables should all be on the same grid
+  input_var_names=(/"pct_gic","pct_icesheet","usrf","landmask_float"/)
+  ; which of the input variables should be masked by the landmask?
+  input_do_mask  =(True      ,True          ,True/)
 
   ; input data are curvilinear, so lat & lon are specified by 2-d
   ; arrays, as given here:
@@ -58,6 +61,15 @@ begin
   skip_wgt_grid = False
 
 ;*****************END OF USER DEFINIED VARIABLES*******************
+
+;************************************************
+; Error checking
+;************************************************
+
+if (dimsizes(input_var_names) .ne. dimsizes(input_do_mask)) then
+  print("mismatch between sizes of input_var_names and input_do_mask")
+  exit
+end if
 
 ;************************************************
 ; Get template longitudes and latitudes
