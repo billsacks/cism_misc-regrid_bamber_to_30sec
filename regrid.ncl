@@ -4,6 +4,9 @@
 ; This script regrids the curvilinear bamber data to a regular, 30"
 ; regional output grid. It uses ESMF's bilinear interpolation,
 ; available starting in ncl version 6.1.0.
+;
+; For regridding the data fields, it uses source masking. For
+; regridding the landmask, it does NOT use source masking.
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
@@ -19,11 +22,15 @@ begin
   ; included as an attribute in the output
   input_title="Bamber 5 km"
 
-  ; all of the input variables to regrid
+  ; all of the input variables to regrid, except landmask
   ; Note: the input variables should all be on the same grid
-  input_var_names=(/"pct_gic","pct_icesheet","usrf","landmask_float"/)
-  ; which of the input variables should be masked by the landmask?
-  input_do_mask  =(/True     ,True          ,True  ,False           /)          
+  input_var_names=(/"pct_gic","pct_icesheet","usrf"/)
+
+  ; the landmask is handled differently; its name is here:
+  ; (note that this is the real-values landmask variable that will be regridded,
+  ; in contrast to the integer mask variable, which is given later)
+  ; (this field can have NA values in addition to 0/1 values in the input)
+  landmask_var_name="landmask_float"
 
   ; input data are curvilinear, so lat & lon are specified by 2-d
   ; arrays, as given here:
@@ -32,6 +39,8 @@ begin
 
   ; this variable provides the mask of input points: 0 where things
   ; are masked out (i.e., ocean), 1 elsewhere
+  ; (note: this variable should not have any NA values: it is 0
+  ; wherever data fields are invalid)
   input_mask_name="landmask"
 
   ; is the input a regional file? (as opposed to a global file)
@@ -56,9 +65,11 @@ begin
 
   ; set the following to true if the necessary files have already been
   ; generated
-  skip_src_grid = True
-  skip_dst_grid = True
-  skip_wgt_gen = True
+  skip_src_grid = False
+  skip_dst_grid = False
+  skip_wgt_gen = False
+  skip_src_grid_landmask = False
+  skip_wgt_gen_landmask = False
 
 ;*****************END OF USER DEFINIED VARIABLES*******************
 
@@ -122,6 +133,8 @@ end if
   Opt@DstLargeFile = dest_large_file
   Opt@LargeFile = wgt_large_file
 
+  Opt@SrcMask2D = input_mask
+
   Opt@InterpMethod = interp_method
 
   Opt@SrcFileName = "source_grid_file.nc"
@@ -146,16 +159,8 @@ end if
   numvars = dimsizes(input_var_names)
   do n = 0, numvars-1
     var_name=input_var_names(n)
-    print(var_name)
+    print(var_name + "")
     var = input_file->$var_name$
-
-    if (input_do_mask(n)) then
-      print("using source mask")
-      Opt@SrcMask2D = input_mask
-    else
-      print("NOT using source mask")
-      delete(Opt@SrcMask2D)
-    end if
 
     var_regrid = ESMF_regrid(var,Opt)
     output_file->$var_name$ = var_regrid
@@ -166,13 +171,33 @@ end if
     Opt@SkipDstGrid = True
     Opt@SkipWgtGen = True
 
-;************************************************
 ; Clean up: delete variables to prepare for next iteration
 ; (we need to do this because ncl doesn't handle
 ; changes in dimensionality of variables well)
-;************************************************
     delete(var)
     delete(var_regrid)
 
   end do
+
+;************************************************
+; Handle regridding of landmask separately
+;************************************************
+
+  ; For the landmask, we do NOT use source masking (doing so would
+  ; only preserve the 1 values in the output)
+  delete(Opt@SrcMask2D)
+  
+  ; we need a new source grid file & weights file for the landmask, but can
+  ; reuse the existing destination grid file
+  Opt@SrcFileName = "source_grid_file_landmask.nc"
+  Opt@WgtFileName = "weights_file_landmask.nc"
+  Opt@SkipDstGrid = True
+  Opt@SkipSrcGrid = skip_src_grid_landmask
+  Opt@SkipWgtGen = skip_wgt_gen_landmask
+  
+  print(landmask_var_name + "")
+  var = input_file->$landmask_var_name$
+  var_regrid = ESMF_regrid(var,Opt)
+  output_file->$landmask_var_name$ = var_regrid
+
 end
