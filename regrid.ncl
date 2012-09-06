@@ -23,7 +23,7 @@ begin
   ; Note: the input variables should all be on the same grid
   input_var_names=(/"pct_gic","pct_icesheet","usrf","landmask_float"/)
   ; which of the input variables should be masked by the landmask?
-  input_do_mask  =(True      ,True          ,True/)
+  input_do_mask  =(/True      ,True          ,True/)
 
   ; input data are curvilinear, so lat & lon are specified by 2-d
   ; arrays, as given here:
