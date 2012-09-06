@@ -7,6 +7,7 @@
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/esmf/ESMF_regridding.ncl"
 load "~/ncl/reverse_dimensions.ncl"
 
@@ -16,24 +17,24 @@ begin
   input_file_name="bamber_5km_converted.nc"
 
   ; included as an attribute in the output
-  input_title='Bamber 5 km'
+  input_title="Bamber 5 km"
 
   ; the input variables should all be on the same grid
   input_var_names=(/"pct_gic","pct_icesheet","landmask_float","usrf"/)
 
   ; input data are curvilinear, so lat & lon are specified by 2-d
   ; arrays, as given here:
-  lat_var_name='lat'
-  lon_var_name='lon'
+  lat_var_name="lat"
+  lon_var_name="lon"
 
   ; this variable provides the mask of input points: 0 where things
   ; are masked out (i.e., ocean), 1 elsewhere
-  input_mask_name='landmask'
+  input_mask_name="landmask"
 
   ; is the input a regional file? (as opposed to a global file)
   input_is_regional = True
 
-  template_file_name="template_out.nc"
+  template_file_name="template_out2.nc"
 
   template_var_name="ice_shelf"
 
@@ -87,6 +88,9 @@ begin
   Opt@SrcGridLat = lat2d
   Opt@SrcGridLon = lon2d
   Opt@SrcRegional = input_is_regional
+; according to the documentation, DstGridType shouldn't be required,
+; but it seems to be
+  Opt@DstGridType = "rectilinear"
   Opt@DstGridLat = template_lat
   Opt@DstGridLon = template_lon
   Opt@DstRegional = template_is_regional
