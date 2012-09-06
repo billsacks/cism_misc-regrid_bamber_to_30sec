@@ -58,7 +58,7 @@ begin
   ; generated
   skip_src_grid = True
   skip_dst_grid = True
-  skip_wgt_gen = True
+  skip_wgt_gen = False
 
 ;*****************END OF USER DEFINIED VARIABLES*******************
 
