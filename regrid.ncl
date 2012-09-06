@@ -34,12 +34,16 @@ begin
   ; is the input a regional file? (as opposed to a global file)
   input_is_regional = True
 
+  source_large_file = False
+
   template_file_name="template_out.nc"
 
   template_var_name="ice_shelf"
 
   ; is the template a regional file? (as opposed to a global file)
   template_is_regional = True
+
+  dest_large_file = True
 
   output_file_name="bamber_30sec.nc"
 
@@ -88,12 +92,14 @@ begin
   Opt@SrcGridLat = lat2d
   Opt@SrcGridLon = lon2d
   Opt@SrcRegional = input_is_regional
+  Opt@SrcLargeFile = source_large_file
 ; according to the documentation, DstGridType shouldn't be required,
 ; but it seems to be
   Opt@DstGridType = "rectilinear"
   Opt@DstGridLat = template_lat
   Opt@DstGridLon = template_lon
   Opt@DstRegional = template_is_regional
+  Opt@DstLargeFile = dest_large_file
 
   Opt@SrcMask2D = input_mask
 
