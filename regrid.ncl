@@ -99,6 +99,9 @@ begin
 
   Opt@InterpMethod = interp_method
 
+  Opt@SrcFileName = "source_grid_file.nc"
+  Opt@DstFileName = "destination_grid_file.nc"
+
   Opt@SrcInputFileName=input_file_name
   Opt@SrcTitle=input_title
   Opt@CopyVarCoords = True
