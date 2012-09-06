@@ -23,7 +23,7 @@ begin
   ; Note: the input variables should all be on the same grid
   input_var_names=(/"pct_gic","pct_icesheet","usrf","landmask_float"/)
   ; which of the input variables should be masked by the landmask?
-  input_do_mask  =(/True      ,True          ,True/)
+  input_do_mask  =(/True     ,True          ,True  ,False           /)          
 
   ; input data are curvilinear, so lat & lon are specified by 2-d
   ; arrays, as given here:
@@ -58,7 +58,7 @@ begin
   ; generated
   skip_src_grid = True
   skip_dst_grid = True
-  skip_wgt_grid = False
+  skip_wgt_grid = True
 
 ;*****************END OF USER DEFINIED VARIABLES*******************
 
@@ -122,8 +122,6 @@ end if
   Opt@DstLargeFile = dest_large_file
   Opt@LargeFile = wgt_large_file
 
-  Opt@SrcMask2D = input_mask
-
   Opt@InterpMethod = interp_method
 
   Opt@SrcFileName = "source_grid_file.nc"
@@ -148,7 +146,16 @@ end if
   numvars = dimsizes(input_var_names)
   do n = 0, numvars-1
     var_name=input_var_names(n)
+    print(var_name)
     var = input_file->$var_name$
+
+    if (input_do_mask(n)) then
+      print("using source mask")
+      Opt@SrcMask2D = input_mask
+    else
+      print("NOT using source mask")
+      delete(Opt@SrcMask2D)
+    end if
 
     var_regrid = ESMF_regrid(var,Opt)
     output_file->$var_name$ = var_regrid
