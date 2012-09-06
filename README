@@ -81,6 +81,8 @@ ncatted -a coordinates,time,d,, -a coordinates,x1,d,, -a coordinates,y1,d,, bamb
 
 # Did the following on mirage (because the ESMF_regridWeightGen
 # program isn't working on roo):
+# Note: if rerunning this, may have to change skip_src_grid,
+# skip_dst_grid and skip_wgt_grid
 nohup ncl regrid.ncl > nohup.out &
 
 # ----------------------------------------------------------------------
