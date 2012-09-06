@@ -83,6 +83,8 @@ ncatted -a coordinates,time,d,, -a coordinates,x1,d,, -a coordinates,y1,d,, bamb
 # program isn't working on roo):
 # Note: if rerunning this, may have to change skip_src_grid,
 # skip_dst_grid and skip_wgt_grid
+# Time requirement: a few hours to create source & dest grid files;
+# 1/2 hour to create weight file; a few minutes to regrid
 nohup ncl regrid.ncl > nohup.out &
 
 # ----------------------------------------------------------------------
