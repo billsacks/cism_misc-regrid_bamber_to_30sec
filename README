@@ -76,39 +76,12 @@ ncatted -a coordinates,time,d,, -a coordinates,x1,d,, -a coordinates,y1,d,, bamb
 # Interpolate to 30" grid
 # ----------------------------------------------------------------------
 
-# This interpolation is done using ncl's rcm2rgrid, which uses inverse
-# distance weighting. According to the documentation:
-#
-# "The code searches the input curvilinear grid latitudes and
-# longitudes for the four grid points that surround a specified output
-# grid coordinate. Because one or more of these input points could
-# contain missing values (@_FillValue), fewer than four points could
-# be used in the interpolation."
-# 
-# This gives the treatment of missing values that I want: i.e., it
-# sounds like it proceeds happily with whatever values are present
-# (avoiding encroachment of missing values).
+# This interpolation is done using NCL's new ESMF_regrid function,
+# using bilinear interpolation
 
-# linint2 (ncl's bilinear interpolation) isn't
-# possible because it only handles rectilinear grids
-
-# here is a test run making a 1-deg output (just to test rcm2rgrid_wrapper):
-# ncl ~/ncl/rcm2rgrid_wrapper.ncl input_file_name=\"bamber_5km_converted.nc\" input_var_name=\"usrf\" output_file_name=\"usrf_30sec.nc\" out_res=1 north=90 south=50 west=-90 east=0
-
-# Did the following on mirage (note: this took about 18 hours to complete):
-nohup ncl ~/ncl/rcm2rgrid_wrapper.ncl input_file_name=\"bamber_5km_converted.nc\" input_var_name=\"pct_gic\" output_file_name=\"pct_gic_30sec.nc\" template_file_name=\"template_out.nc\" template_var_name=\"ice_shelf\" > gic.out &
-nohup ncl ~/ncl/rcm2rgrid_wrapper.ncl input_file_name=\"bamber_5km_converted.nc\" input_var_name=\"pct_icesheet\" output_file_name=\"pct_icesheet_30sec.nc\" template_file_name=\"template_out.nc\" template_var_name=\"ice_shelf\" > icesheet.out &
-nohup ncl ~/ncl/rcm2rgrid_wrapper.ncl input_file_name=\"bamber_5km_converted.nc\" input_var_name=\"landmask\" output_file_name=\"landmask_30sec.nc\" template_file_name=\"template_out.nc\" template_var_name=\"ice_shelf\" > landmask.out &
-nohup ncl ~/ncl/rcm2rgrid_wrapper.ncl input_file_name=\"bamber_5km_converted.nc\" input_var_name=\"usrf\" output_file_name=\"usrf_30sec.nc\" template_file_name=\"template_out.nc\" template_var_name=\"ice_shelf\" > usrf.out &
-
-# Put all variables in a single file
-ncks -v pct_gic pct_gic_30sec.nc bamber_30sec.nc
-ncks -A -v pct_icesheet pct_icesheet_30sec.nc bamber_30sec.nc
-ncks -A -v landmask landmask_30sec.nc bamber_30sec.nc
-ncks -A -v usrf usrf_30sec.nc bamber_30sec.nc
-
-# Restore lon metadata
-ncatted -a long_name,lon,c,c,longitude -a units,lon,c,c,degrees_east bamber_30sec.nc
+# Did the following on mirage (because the ESMF_regridWeightGen
+# program isn't working on roo):
+nohup ncl regrid.nc > nohup.out &
 
 # ----------------------------------------------------------------------
 # Convert landmask to 0/1
