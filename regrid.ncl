@@ -45,6 +45,8 @@ begin
 
   dest_large_file = True
 
+  wgt_large_file = True
+
   output_file_name="bamber_30sec.nc"
 
   interp_method = "bilinear"
@@ -106,6 +108,7 @@ begin
   Opt@DstGridLon = template_lon
   Opt@DstRegional = template_is_regional
   Opt@DstLargeFile = dest_large_file
+  Opt@LargeFile = wgt_large_file
 
   Opt@SrcMask2D = input_mask
 
