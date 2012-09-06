@@ -34,7 +34,7 @@ begin
   ; is the input a regional file? (as opposed to a global file)
   input_is_regional = True
 
-  template_file_name="template_out2.nc"
+  template_file_name="template_out.nc"
 
   template_var_name="ice_shelf"
 
