@@ -58,7 +58,7 @@ begin
   ; generated
   skip_src_grid = True
   skip_dst_grid = True
-  skip_wgt_grid = True
+  skip_wgt_gen = True
 
 ;*****************END OF USER DEFINIED VARIABLES*******************
 
@@ -129,7 +129,7 @@ end if
   Opt@WgtFileName = "weights_file.nc"
   Opt@SkipSrcGrid = skip_src_grid
   Opt@SkipDstGrid = skip_dst_grid
-  Opt@SkipWgtGrid = skip_wgt_grid
+  Opt@SkipWgtGen = skip_wgt_gen
 
   Opt@SrcInputFileName=input_file_name
   Opt@SrcTitle=input_title
