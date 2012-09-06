@@ -74,15 +74,6 @@ begin
 ;*****************END OF USER DEFINIED VARIABLES*******************
 
 ;************************************************
-; Error checking
-;************************************************
-
-if (dimsizes(input_var_names) .ne. dimsizes(input_do_mask)) then
-  print("mismatch between sizes of input_var_names and input_do_mask")
-  exit
-end if
-
-;************************************************
 ; Get template longitudes and latitudes
 ;************************************************
 
