@@ -6,7 +6,14 @@
 ; available starting in ncl version 6.1.0.
 ;
 ; For regridding the data fields, it uses source masking. For
-; regridding the landmask, it does NOT use source masking.
+; regridding the landmask, it does NOT use source masking. For the
+; data fields, it looks like this source masking results in an
+; encroachment of missing values; I suppose we could deal with that by
+; doing something like poisson_grid_fill prior to the regridding, but
+; I haven't implemented that here. For regridding landmask, the fact
+; that we don't do source masking seems to mean that 0 values are used
+; where there would have been _FillValue. That's probably an okay
+; thing to do.
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
@@ -175,7 +182,10 @@ begin
 ;************************************************
 
   ; For the landmask, we do NOT use source masking (doing so would
-  ; only preserve the 1 values in the output)
+  ; only preserve the 1 values in the output) (though one other
+  ; possibility would be to do source masking where the mask is 1
+  ; wherever landmask_float is 0 or 1, and 0 wherever landmask_float
+  ; is _FillValue)
   delete(Opt@SrcMask2D)
   
   ; we need a new source grid file & weights file for the landmask, but can
