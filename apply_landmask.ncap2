@@ -1,0 +1,34 @@
+// ncap2 script for applying landmask after doing the regridding
+//
+// This first turns the landmask into 0/1 values, then applies this
+// landmask to the other data variables.
+//
+// The assumptions here are: 
+// (1) before regridding, the landmask told
+// us exactly where the data fields had valid (non-missing) values;
+// (2) the data variables were pre-filled (extrapolated) before they
+// were regridded, and then were regridded WITHOUT source masking; 
+// (3) the landmask was regridded using the same algorithm as the other data variables,
+// using a value of 0 wherever the landmask had a missing value. 
+//
+// Under these assumptions, the regridded landmask field basically tells us the
+// fraction of each destination point that came from a valid
+// (non-extrapolated) source point -- or at least something similar to
+// that. Thus, by choosing a threshold for where we set landmask to 0
+// vs 1, we are choosing the required fraction of source area that
+// must have been valid (non-extrapolated) for a destination cell to
+// be considered valid.
+
+landmask[$lat,$lon]=0b;
+
+// The following line is where we set the threshold for valid
+// points. There is nothing magical about 0.5, but it seems to make
+// sense intuitively.
+where(landmask_float > 0.5)
+  landmask=1;
+
+where(landmask==0) {
+  pct_gic=pct_gic.get_miss();
+  pct_icesheet=pct_icesheet.get_miss();
+  usrf=usrf.get_miss();
+}

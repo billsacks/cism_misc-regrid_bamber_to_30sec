@@ -115,12 +115,10 @@ ncatted -a coordinates,time,d,, -a coordinates,x1,d,, -a coordinates,y1,d,, bamb
 nohup ncl regrid.ncl > nohup.out &
 
 # ----------------------------------------------------------------------
-# Convert landmask to 0/1
+# Convert landmask to 0/1, and apply it to the data fields
 # ----------------------------------------------------------------------
 
-ncap2 -s 'where(landmask > 0) landmask=1; landmask=byte(landmask)' bamber_30sec.nc bamber_30sec_landmask.nc
-
-mv bamber_30sec_landmask.nc bamber_30sec.nc
+ncap2 -S apply_landmask.ncap2 bamber_30sec.nc bamber_30sec_masked.nc
 
 # ----------------------------------------------------------------------
 # Compute derived quantities
