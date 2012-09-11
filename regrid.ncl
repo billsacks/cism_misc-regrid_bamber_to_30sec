@@ -5,15 +5,13 @@
 ; regional output grid. It uses ESMF's bilinear interpolation,
 ; available starting in ncl version 6.1.0.
 ;
-; For regridding the data fields, it uses source masking. For
-; regridding the landmask, it does NOT use source masking. For the
-; data fields, it looks like this source masking results in an
-; encroachment of missing values; I suppose we could deal with that by
-; doing something like poisson_grid_fill prior to the regridding, but
-; I haven't implemented that here. For regridding landmask, the fact
-; that we don't do source masking seems to mean that 0 values are used
-; where there would have been _FillValue. That's probably an okay
-; thing to do.
+; We do NOT use source masking, because doing so would lead to an
+; encroachment of missing values. Instead, the data fields (i.e.,
+; everything except the landmask) are assumed to have been pre-filled
+; (i.e., extrapolated, using something like poisson_grid_fill). The
+; landmask does not need to be prefilled, because missing values are
+; treated as 0 in doing the regridding, which is probably the best
+; thing that can be done. 
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
@@ -24,31 +22,19 @@ load "~/ncl/reverse_dimensions.ncl"
 begin
 ;******************** USER DEFINED VARIABLES***********************
 
-  input_file_name="bamber_5km_converted.nc"
+  input_file_name="bamber_5km_converted_filled.nc"
 
   ; included as an attribute in the output
   input_title="Bamber 5 km"
 
-  ; all of the input variables to regrid, except landmask
+  ; all of the input variables to regrid, including landmask
   ; Note: the input variables should all be on the same grid
-  input_var_names=(/"pct_gic","pct_icesheet","usrf"/)
-
-  ; the landmask is handled differently; its name is here:
-  ; (note that this is the real-values landmask variable that will be regridded,
-  ; in contrast to the integer mask variable, which is given later)
-  ; (this field can have NA values in addition to 0/1 values in the input)
-  landmask_var_name="landmask_float"
+  input_var_names=(/"pct_gic","pct_icesheet","usrf","landmask_float"/)
 
   ; input data are curvilinear, so lat & lon are specified by 2-d
   ; arrays, as given here:
   lat_var_name="lat"
   lon_var_name="lon"
-
-  ; this variable provides the mask of input points: 0 where things
-  ; are masked out (i.e., ocean), 1 elsewhere
-  ; (note: this variable should not have any NA values: it is 0
-  ; wherever data fields are invalid)
-  input_mask_name="landmask"
 
   ; is the input a regional file? (as opposed to a global file)
   input_is_regional = True
@@ -75,8 +61,6 @@ begin
   skip_src_grid = False
   skip_dst_grid = False
   skip_wgt_gen = False
-  skip_src_grid_landmask = False
-  skip_wgt_gen_landmask = False
 
 ;*****************END OF USER DEFINIED VARIABLES*******************
 
@@ -101,16 +85,12 @@ begin
   input_file = addfile(input_file_name, "r")
   lat2d = input_file->$lat_var_name$
   lon2d = input_file->$lon_var_name$
-  input_mask = input_file->$input_mask_name$
 
 ;************************************************
 ; Set up output file
 ;************************************************
 
   output_file = addfile(output_file_name, "c")
-  if (isfilevar(input_file, "time")) then
-    filedimdef(output_file,"time",-1,True)  ; make 'time' the unlimited dimension
-  end if
 
 ;************************************************
 ; Set regridding options
@@ -130,8 +110,6 @@ begin
   Opt@DstRegional = template_is_regional
   Opt@DstLargeFile = dest_large_file
   Opt@LargeFile = wgt_large_file
-
-  Opt@SrcMask2D = input_mask
 
   Opt@InterpMethod = interp_method
 
@@ -176,29 +154,5 @@ begin
     delete(var_regrid)
 
   end do
-
-;************************************************
-; Handle regridding of landmask separately
-;************************************************
-
-  ; For the landmask, we do NOT use source masking (doing so would
-  ; only preserve the 1 values in the output) (though one other
-  ; possibility would be to do source masking where the mask is 1
-  ; wherever landmask_float is 0 or 1, and 0 wherever landmask_float
-  ; is _FillValue)
-  delete(Opt@SrcMask2D)
-  
-  ; we need a new source grid file & weights file for the landmask, but can
-  ; reuse the existing destination grid file
-  Opt@SrcFileName = "source_grid_file_landmask.nc"
-  Opt@WgtFileName = "weights_file_landmask.nc"
-  Opt@SkipDstGrid = True
-  Opt@SkipSrcGrid = skip_src_grid_landmask
-  Opt@SkipWgtGen = skip_wgt_gen_landmask
-  
-  print(landmask_var_name + "")
-  var = input_file->$landmask_var_name$
-  var_regrid = ESMF_regrid(var,Opt)
-  output_file->$landmask_var_name$ = var_regrid
 
 end
