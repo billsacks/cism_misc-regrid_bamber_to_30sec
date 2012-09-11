@@ -121,6 +121,13 @@ nohup ncl regrid.ncl > nohup.out &
 ncap2 -S apply_landmask.ncap2 bamber_30sec.nc bamber_30sec_masked.nc
 
 # ----------------------------------------------------------------------
+# Remove unnecessary landmask_float variable
+# ----------------------------------------------------------------------
+
+ncks -x -v landmask_float bamber_30sec_masked.nc temp.nc
+mv temp.nc bamber_30sec_masked.nc
+
+# ----------------------------------------------------------------------
 # Compute derived quantities
 # ----------------------------------------------------------------------
 
@@ -129,3 +136,20 @@ ncap2 -s 'pct_landice = pct_gic + pct_icesheet' bamber_30sec.nc bamber_30sec_der
 rm bamber_30sec.nc
 ncks -x -v pct_icesheet bamber_30sec_derived.nc bamber_30sec.nc
 rm bamber_30sec_derived.nc
+
+# ----------------------------------------------------------------------
+# Notes on how this should be used to overwrite the global data
+# ----------------------------------------------------------------------
+
+# Wherever landmask has a valid value (i.e., 0 or 1; NOT _FillValue),
+# the global landmask should be overwritten by this Bamber-derived
+# landmask. In addition, in these same places, the data fields from
+# the global data should be overwritten by the Bamber-derived
+# data. Note that the Bamber-derived data will be _FillValue where
+# landmask==0; in these places, the global data should be overwritten
+# with _FillValue, too (to maintain consistency between the landmask
+# and the locations where data are equal to _FillValue).
+
+# In places where the landmask is _FillValue, the global data should
+# be left untouched: these are locations outside the bounds of the
+# Bamber data.

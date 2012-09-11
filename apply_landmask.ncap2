@@ -1,7 +1,10 @@
 // ncap2 script for applying landmask after doing the regridding
 //
 // This first turns the landmask into 0/1 values, then applies this
-// landmask to the other data variables.
+// landmask to the other data variables. It then sets the landmask to
+// be _FillValue wherever the original landmask_float was _FillValue
+// (this is needed in order to know what points should be used from
+// the Bamber-derived data when overwriting global data fields).
 //
 // The assumptions here are: 
 // (1) before regridding, the landmask told
@@ -20,6 +23,7 @@
 // be considered valid.
 
 landmask[$lat,$lon]=0b;
+landmask.set_miss(-1b);
 
 // The following line is where we set the threshold for valid
 // points. There is nothing magical about 0.5, but it seems to make
@@ -34,4 +38,8 @@ where(landmask==0) {
   pct_gic=-9999.f;
   pct_icesheet=-9999.f;
   usrf=-9999.f;
+}
+
+where(landmask_float==landmask_float.get_miss()) {
+  landmask = landmask.get_miss();
 }
