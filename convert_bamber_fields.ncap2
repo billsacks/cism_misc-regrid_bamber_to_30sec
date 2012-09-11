@@ -29,6 +29,7 @@ elsewhere
 // - landmask_float (float): 0 or 1 or nodata: 1 where landmask is 1;
 //   0 where landcover is ocean; _FillValue where landcover is no_data
 //   - this is the landmask field that will be regridded
+// 9-11-12: As of now, the integer land mask variable is no longer needed
 where(landcover >= 2)
   landmask=1;
 elsewhere
