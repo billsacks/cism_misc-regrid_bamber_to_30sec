@@ -32,6 +32,6 @@ where(landmask==0) {
   // for these variables -- e.g., pct_gic=pct_gic.get_miss()
   // Thus I am forced to hard-code the missing value.
   pct_gic=-9999.f;
-  pct_icesheet=-9999.f
-  usrf=-9999.f
+  pct_icesheet=-9999.f;
+  usrf=-9999.f;
 }
