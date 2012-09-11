@@ -28,7 +28,10 @@ where(landmask_float > 0.5)
   landmask=1;
 
 where(landmask==0) {
-  pct_gic=pct_gic.get_miss();
-  pct_icesheet=pct_icesheet.get_miss();
-  usrf=usrf.get_miss();
+  // For some reason the get_miss() function doesn't work correctly
+  // for these variables -- e.g., pct_gic=pct_gic.get_miss()
+  // Thus I am forced to hard-code the missing value.
+  pct_gic=-9999.f;
+  pct_icesheet=-9999.f
+  usrf=-9999.f
 }
