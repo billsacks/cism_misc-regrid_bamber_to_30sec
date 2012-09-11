@@ -40,6 +40,8 @@ where(landmask==0) {
   usrf=-9999.f;
 }
 
-where(landmask_float==landmask_float.get_miss()) {
+// as above, get_miss isn't working properly here, so I have to
+// hard-code the missing value
+where(landmask_float==-9999.f) {
   landmask = landmask.get_miss();
 }
