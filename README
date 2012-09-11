@@ -121,21 +121,17 @@ nohup ncl regrid.ncl > nohup.out &
 ncap2 -S apply_landmask.ncap2 bamber_30sec.nc bamber_30sec_masked.nc
 
 # ----------------------------------------------------------------------
-# Remove unnecessary landmask_float variable
-# ----------------------------------------------------------------------
-
-ncks -x -v landmask_float bamber_30sec_masked.nc temp.nc
-mv temp.nc bamber_30sec_masked.nc
-
-# ----------------------------------------------------------------------
 # Compute derived quantities
 # ----------------------------------------------------------------------
 
-ncap2 -s 'pct_landice = pct_gic + pct_icesheet' bamber_30sec.nc bamber_30sec_derived.nc
+ncap2 -s 'pct_landice = pct_gic + pct_icesheet' bamber_30sec_masked.nc bamber_30sec_derived.nc
 
-rm bamber_30sec.nc
-ncks -x -v pct_icesheet bamber_30sec_derived.nc bamber_30sec.nc
-rm bamber_30sec_derived.nc
+# ----------------------------------------------------------------------
+# Remove unnecessary variables
+# ----------------------------------------------------------------------
+
+ncks -x -v pct_icesheet,landmask_float bamber_30sec_derived.nc temp.nc
+mv temp.nc bamber_30sec_derived.nc
 
 # ----------------------------------------------------------------------
 # Notes on how this should be used to overwrite the global data
