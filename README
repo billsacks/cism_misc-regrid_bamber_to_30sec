@@ -73,6 +73,33 @@ ncatted -a coordinates,,c,c,'lon lat' bamber_5km_converted_plotting.nc
 ncatted -a coordinates,time,d,, -a coordinates,x1,d,, -a coordinates,y1,d,, bamber_5km_converted_plotting.nc
 
 # ----------------------------------------------------------------------
+# Fill (extrapolate) missing values, to make for improved interpolation
+# ----------------------------------------------------------------------
+
+# Purpose: without this step, there is an encroachment of missing
+# values when doing bilinear interpolation. That encroachment of
+# missing values would lead to bad results along coastlines if we used
+# this file to generate a surface dataset at high resolution. Doing
+# extrapolation isn't ideal, but I think it's the lesser of two evils.
+
+cp bamber_5km_converted.nc bamber_5km_converted_filled.nc
+ncl fill_missing.ncl
+
+# ----------------------------------------------------------------------
+# And make a version of that file for plotting in panoply, too
+# ----------------------------------------------------------------------
+
+# For some reason, panoply doesn't properly handle the 'mapping';
+# first we need to get rid of that
+ncks -x -v mapping bamber_5km_converted_filled.nc bamber_5km_converted_filled_plotting.nc 
+ncatted -a grid_mapping,,d,, bamber_5km_converted_filled_plotting.nc
+
+# Now we need to add attributes pointing panoply to the lat & lon arrays
+ncatted -a coordinates,,c,c,'lon lat' bamber_5km_converted_filled_plotting.nc
+# But those attributes don't apply to non-spatial variables
+ncatted -a coordinates,time,d,, -a coordinates,x1,d,, -a coordinates,y1,d,, bamber_5km_converted_filled_plotting.nc
+
+# ----------------------------------------------------------------------
 # Interpolate to 30" grid
 # ----------------------------------------------------------------------
 
