@@ -116,6 +116,16 @@ ncatted -a coordinates,time,d,, -a coordinates,x1,d,, -a coordinates,y1,d,, bamb
 nohup ncl regrid.ncl > nohup.out &
 
 # ----------------------------------------------------------------------
+# Set has_data to 0 where it is missing value
+# ----------------------------------------------------------------------
+
+# (has_data is missing value outside the bounds of the source data)
+
+ncap2 -s 'where(has_data==has_data.get_miss()) has_data=0.0;' bamber_30sec.nc bamber_30sec_temp.nc
+
+mv bamber_30sec_temp.nc bamber_30sec.nc
+
+# ----------------------------------------------------------------------
 # Convert landmask to 0/1, and apply it to the data fields
 # ----------------------------------------------------------------------
 
