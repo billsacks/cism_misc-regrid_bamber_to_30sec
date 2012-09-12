@@ -135,13 +135,23 @@ ncap2 -S apply_landmask.ncap2 bamber_30sec.nc bamber_30sec_masked.nc
 # Compute derived quantities
 # ----------------------------------------------------------------------
 
-ncap2 -s 'pct_landice = pct_gic + pct_icesheet' bamber_30sec_masked.nc bamber_30sec_derived.nc
+# For some reason, ncap2's handling of missing values isn't working
+# correctly, so I need to fix it via hard-coding in the 'where' clause
+ncap2 -s 'pct_landice = pct_gic + pct_icesheet; where(pct_landice==-19998.) pct_landice=-9999.;' bamber_30sec_masked.nc bamber_30sec_derived.nc
 
 # ----------------------------------------------------------------------
 # Remove unnecessary variables
 # ----------------------------------------------------------------------
 
-ncks -x -v pct_icesheet,landmask_float bamber_30sec_derived.nc temp.nc
+ncks -x -v pct_icesheet,landmask_float,has_data bamber_30sec_derived.nc temp.nc
+mv temp.nc bamber_30sec_derived.nc
+
+# ----------------------------------------------------------------------
+# Make sure % values max out at 100% (before this correction, some
+# points are slightly greater than 100% due to rounding error)
+# ----------------------------------------------------------------------
+
+ncap2 -s 'where(pct_gic > 100) pct_gic=100.; where(pct_landice > 100) pct_landice=100.;' bamber_30sec_derived.nc temp.nc
 mv temp.nc bamber_30sec_derived.nc
 
 # ----------------------------------------------------------------------
