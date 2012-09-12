@@ -2,9 +2,10 @@
 //
 // This first turns the landmask into 0/1 values, then applies this
 // landmask to the other data variables. It then sets the landmask to
-// be _FillValue wherever the original landmask_float was _FillValue
-// (this is needed in order to know what points should be used from
-// the Bamber-derived data when overwriting global data fields).
+// be _FillValue wherever we had no data in the original source data
+// (or more exactly, where has_data <= 0.5) (this is needed in order
+// to know what points should be used from the Bamber-derived data
+// when overwriting global data fields).
 //
 // The assumptions here are: 
 // (1) before regridding, the landmask told
@@ -40,8 +41,21 @@ where(landmask==0) {
   usrf=-9999.f;
 }
 
-// as above, get_miss isn't working properly here, so I have to
-// hard-code the missing value
-where(landmask_float==-9999.f) {
+// The fill value pattern of landmask will later be used to tell us
+// where to overwrite global data with the Bamber-derived data (only
+// overwrite where landmask is not _FillValue). I first tried to
+// do this where(landmask_float==-9999.f), but with the way landmask
+// is regridded, that led to a slight encroachment of valid values --
+// this wasn't a huge problem, but gave slightly wrong results in a
+// corner of Ellesmere island. So now I am instead using this new
+// has_data variable to set this fill pattern.
+//
+// I'm not sure that we need the 'landmask==0' part of the
+// conditional, but I don't think it hurts anything to keep it in
+// there, and I think it could mess things up to set landmask to
+// _FillValue where it used to be 1 (at least, it would require going
+// back through the data variables and setting them to _FillValue in
+// those places, too).
+where(landmask==0 && has_data <= 0.5)
   landmask = landmask.get_miss();
-}
+

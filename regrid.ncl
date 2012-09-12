@@ -29,7 +29,7 @@ begin
 
   ; all of the input variables to regrid, including landmask
   ; Note: the input variables should all be on the same grid
-  input_var_names=(/"pct_gic","pct_icesheet","usrf","landmask_float"/)
+  input_var_names=(/"pct_gic","pct_icesheet","usrf","landmask_float","has_data"/)
 
   ; input data are curvilinear, so lat & lon are specified by 2-d
   ; arrays, as given here:

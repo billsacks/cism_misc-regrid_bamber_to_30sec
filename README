@@ -55,7 +55,8 @@ ncwa -O -a time bamber_5km.nc bamber_5km.nc
 # Add fill value attribute to usrf
 ncatted -a _FillValue,usrf,c,f,-9999. bamber_5km.nc
 
-# Convert to continuous fields: % icesheet, % gic. Also, create landmask variable
+# Convert to continuous fields: % icesheet, % gic. Also, create
+# landmask variable and has_data variable
 ncap2 -S convert_bamber_fields.ncap2 bamber_5km.nc bamber_5km_converted.nc
 
 # ----------------------------------------------------------------------

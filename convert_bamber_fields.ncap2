@@ -5,6 +5,7 @@
 pct_gic[$y1,$x1]=0.0f;
 pct_icesheet[$y1,$x1]=0.0f;
 landmask[$y1,$x1]=0;
+has_data[$y1,$x1]=1.0f;
 
 // Set _FillValue attributes for new variables
 pct_gic.set_miss(-9999.f);
@@ -38,8 +39,10 @@ elsewhere
 landmask_float=float(landmask);
 landmask_float.set_miss(-9999.f);
 
-where(landcover==0)
+where(landcover==0) {
   landmask_float=landmask_float.get_miss();
+  has_data=0.0f;
+}
 
 // over no_data and ocean points, set data fields to missing value
 where(landcover==0 || landcover==1) {
