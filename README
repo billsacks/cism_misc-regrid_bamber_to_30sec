@@ -170,3 +170,22 @@ mv temp.nc bamber_30sec_derived.nc
 # In places where the landmask is _FillValue, the global data should
 # be left untouched: these are locations outside the bounds of the
 # Bamber data.
+
+# To state this in a different way:
+#
+# There are three values of the landmask:
+#
+# landmask=1 (land): Here, you should overwrite the global data with
+# the values from the Bamber-derived file that I made.
+#
+# landmask=0 (ocean): Here, you should also overwrite the global data
+# with the values from the Bamber-derived file. But in this case, all
+# of the data fields have _FillValue. That is, you'll end up with
+# _FillValue at these points in the merged map. (Imagine a grid cell
+# that was called land in the global data, but ocean in the Bamber
+# data, right off the coast of Greenland. In the final, merged map, we
+# want this point to be called ocean, with _FillValue in the data
+# fields.)
+#
+# landmask=_FillValue: Here, you should leave the global data
+# untouched.
