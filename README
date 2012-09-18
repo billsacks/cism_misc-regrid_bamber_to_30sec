@@ -1,7 +1,7 @@
 # Bill Sacks
 # August, 2012
 
-# This documents the procedure for regridding the Bamber Greenland
+# This documents the procedure for regridding the 5 km Bamber Greenland
 # landcover data to 30" resolution, so that it can be merged with Alex
 # Gardner's glacier cover dataset.
 
@@ -11,6 +11,19 @@
 
 # The various intermediate files can be found on roo:
 # ~/cism_misc/regrid_bamber_to_30sec
+
+# Some notes on how I might change this in the future when we have
+# higher-resolution Bamber source data (e.g., 1 km or 2 km): With
+# higher-resolution source data, I think that encroachment of missing
+# values will be less of a problem. So then, it might be best to avoid
+# doing extrapolation. This would mean:
+# - skip the fill_missing step
+# - change how masking is done. I *think* I would then want to use
+#   source masking for the data variables. This is what I did at
+#   first, so I can look at some older svn revisions for what I used
+#   to do (though I'm not positive that there was any one revision
+#   where I was doing things right the old way, so I'll need to look
+#   back at that and think things through a bit more)
 
 # ----------------------------------------------------------------------
 # Create template file for output
