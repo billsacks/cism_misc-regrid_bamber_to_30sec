@@ -81,7 +81,14 @@ ncatted -a coordinates,time,d,, -a coordinates,x1,d,, -a coordinates,y1,d,, bamb
 # values when doing bilinear interpolation. That encroachment of
 # missing values would lead to bad results along coastlines if we used
 # this file to generate a surface dataset at high resolution. Doing
-# extrapolation isn't ideal, but I think it's the lesser of two evils.
+# extrapolation isn't ideal, but I think it's the lesser of two
+# evils. 
+#
+# My ideal solution would be to use a regridding algorithm that
+# ignored missing values, just using whatever points were available
+# (e.g., if 3 out of 4 surrounding points have _FillValue, it would
+# just use the single point with a valid value). But I don't know of
+# such a method, at least in ncl.
 
 cp bamber_5km_converted.nc bamber_5km_converted_filled.nc
 ncl fill_missing.ncl
