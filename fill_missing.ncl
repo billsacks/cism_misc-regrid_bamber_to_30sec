@@ -26,15 +26,27 @@ begin
 
   ; guess_type=0 means use 0.0 as initial guess; guess_type=1 means
   ; use zonal averages as initial guess. 1 is recommended. 1 gives
-  ; some questionable values far from the coast, but I think that's okay.
-  guess_type = 1
+  ; some questionable values far from the coast, but I think that's
+  ; okay. 
+  ; Update 9-17-12: some of these questionable values near the coast
+  ; led to a ring of > 0 pct_icesheet in the final regridded map. So I
+  ; am (1) changing guess_type to 0, and (b) increasing the tolerance
+  ; (nscan & eps). With these changes, the differences due to
+  ; guess_type are minimal (< 3% in pct_gic and pct_icesheet, and < 60
+  ; m in usrf -- and most (all?) of the main differences are away from
+  ; the coast)
+  guess_type = 0
 
   ; max number of iterations used by relaxation
-  nscan = 1500
+  ; Note: for eps = 1.e-6 and guess_type=0, nscan=1500000 takes the
+  ; same amount of time as 150000 (i.e., an order of magnitude less),
+  ; showing that we're stopping by reaching eps rather than nscan, as
+  ; desired 
+  nscan = 1500000
 
   ; tolerance for ending relaxation before nscan limit (we scale this
   ; by the standard deviation of the variable)
-  eps = 1.e-3
+  eps = 1.e-6
 
   ; relaxation constant
   relc = 0.6
