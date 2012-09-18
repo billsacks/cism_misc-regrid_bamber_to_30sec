@@ -34,7 +34,8 @@ begin
   ; (nscan & eps). With these changes, the differences due to
   ; guess_type are minimal (< 3% in pct_gic and pct_icesheet, and < 60
   ; m in usrf -- and most (all?) of the main differences are away from
-  ; the coast)
+  ; the coast), which makes me happy. There is still a ring of > 0,
+  ; but it is less pronounced.
   guess_type = 0
 
   ; max number of iterations used by relaxation
