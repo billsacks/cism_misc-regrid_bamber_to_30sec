@@ -24,6 +24,11 @@
 #   to do (though I'm not positive that there was any one revision
 #   where I was doing things right the old way, so I'll need to look
 #   back at that and think things through a bit more)
+#
+# Update 9-18-12: With nearest neighbor extrapolation, doing this
+# extrapolation seems like less of a problem. So I think it would be
+# reasonable to stick with the current method, which includes
+# extrapolation.
 
 # ----------------------------------------------------------------------
 # Create template file for output
@@ -101,9 +106,16 @@ ncatted -a coordinates,time,d,, -a coordinates,x1,d,, -a coordinates,y1,d,, bamb
 # ignored missing values, just using whatever points were available
 # (e.g., if 3 out of 4 surrounding points have _FillValue, it would
 # just use the single point with a valid value). But I don't know of
-# such a method, at least in ncl.
+# such a method, at least in ncl. So I am doing extrapolation using
+# nearest neighbor, which I think should give a reasonable
+# approximation to that ideal solution.
+#
+# Another alternative would be to just do the interpolation using
+# nearest neighbor -- I think that remove the need for extrapolation
+# at all. But I don't really like the idea of doing that. 
 
 cp bamber_5km_converted.nc bamber_5km_converted_filled.nc
+# The following takes about 2 hours:
 ncl fill_missing.ncl
 
 # ----------------------------------------------------------------------

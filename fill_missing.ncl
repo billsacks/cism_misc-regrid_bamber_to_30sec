@@ -19,53 +19,58 @@ begin
   ; opened for both input & output)
   file_name = "bamber_5km_converted_filled.nc"
   
-  vars_to_fill=(/"pct_gic","pct_icesheet","usrf"/)
+  ; We fill gic & icesheet with nearest neighbor, but usrf with 0 (it
+  ; seems reasonable to assume that usrf approaches 0 at the coast,
+  ; but this is not necessarily the case for pct_gic and pct_icesheet)
+  vars_to_fill_with_nearest_neighbor=(/"pct_gic","pct_icesheet"/)
+  vars_to_fill_with_zero=(/"usrf"/)
 
-  ; Is longitude cyclic? (generally true for global data, false otherwise)
-  cyclic = False
+  ; input data are curvilinear, so lat & lon are specified by 2-d
+  ; arrays, as given here:
+  lat_var_name="lat"
+  lon_var_name="lon"
 
-  ; guess_type=0 means use 0.0 as initial guess; guess_type=1 means
-  ; use zonal averages as initial guess. 1 is recommended. 1 gives
-  ; some questionable values far from the coast, but I think that's
-  ; okay. 
-  ; Update 9-17-12: some of these questionable values near the coast
-  ; led to a ring of > 0 pct_icesheet in the final regridded map. So I
-  ; am (1) changing guess_type to 0, and (b) increasing the tolerance
-  ; (nscan & eps). With these changes, the differences due to
-  ; guess_type are minimal (< 3% in pct_gic and pct_icesheet, and < 60
-  ; m in usrf -- and most (all?) of the main differences are away from
-  ; the coast), which makes me happy. There is still a ring of > 0,
-  ; but it is less pronounced.
-  guess_type = 0
-
-  ; max number of iterations used by relaxation
-  ; Note: for eps = 1.e-6 and guess_type=0, nscan=1500000 takes the
-  ; same amount of time as 150000 (i.e., an order of magnitude less),
-  ; showing that we're stopping by reaching eps rather than nscan, as
-  ; desired 
-  nscan = 1500000
-
-  ; tolerance for ending relaxation before nscan limit (we scale this
-  ; by the standard deviation of the variable)
-  eps = 1.e-6
-
-  ; relaxation constant
-  relc = 0.6
+  ; option for nearest neighbor filling:
+  ; mopt=0: use quick approximation to distance
+  ; mopt=1: use more accurate (but slower) great circle distance
+  ; formula
+  mopt=1
 
 ;*****************END OF USER DEFINIED VARIABLES*******************
 
   fl = addfile(file_name, "w")
+  lat2d = fl->$lat_var_name$
+  lon2d = fl->$lon_var_name$
+  lat1d = ndtooned(lat2d)
+  lon1d = ndtooned(lon2d)
 
-  numvars = dimsizes(vars_to_fill)
+  print("Filling using nearest neighbor:")
+  numvars = dimsizes(vars_to_fill_with_nearest_neighbor)
   do n = 0, numvars-1
-    var_name=vars_to_fill(n)
+    var_name=vars_to_fill_with_nearest_neighbor(n)
     print(var_name + "")
     var = fl->$var_name$
+    var1d = ndtooned(var)
 
-    eps_scaled = eps * stddev(var)
-    poisson_grid_fill(var, cyclic, guess_type, nscan, eps_scaled, relc, 0)
+    Opt=True
+    Opt@mopt = mopt
+    var_fill = triple2grid2d(lon1d, lat1d, var1d, lon2d, lat2d, Opt)
+
+    ; where var had missing values, use var_fill instead
+    var = where(ismissing(var), var_fill, var)
+    
     fl->$var_name$ = var
   end do
 
+  print("Filling with zeros:")
+  numvars = dimsizes(vars_to_fill_with_zero)
+  do n = 0, numvars-1
+    var_name=vars_to_fill_with_zero(n)
+    print(var_name + "")
+    var = fl->$var_name$
+    var = where(ismissing(var), 0., var)
+
+    fl->$var_name$ = var
+  end do
 
 end

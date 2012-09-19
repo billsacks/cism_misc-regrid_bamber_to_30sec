@@ -7,11 +7,11 @@
 ;
 ; We do NOT use source masking, because doing so would lead to an
 ; encroachment of missing values. Instead, the data fields (i.e.,
-; everything except the landmask) are assumed to have been pre-filled
-; (i.e., extrapolated, using something like poisson_grid_fill). The
-; landmask does not need to be prefilled, because missing values are
-; treated as 0 in doing the regridding, which is probably the best
-; thing that can be done. 
+; everything except the landmask and has_data) are assumed to have
+; been pre-filled (i.e., extrapolated, using something like
+; poisson_grid_fill or nearest neighbor). The landmask does not need
+; to be prefilled, because missing values are treated as 0 in doing
+; the regridding, which is probably the best thing that can be done.
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
